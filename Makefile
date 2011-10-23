@@ -8,3 +8,7 @@ GOFILES=\
 
 include $(GOROOT)/src/Make.cmd
 
+clean: recursive-clean
+
+recursive-clean:
+	$(MAKE) -C aurjson clean

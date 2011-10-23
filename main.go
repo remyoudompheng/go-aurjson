@@ -8,11 +8,14 @@ import (
 	aurjson "archlinux/aurjson"
 )
 
-const infoTplString = `
-Name     : {{ .Name }}
-Version  : {{ .Version }}
-URL      : https://aur.archlinux.org{{ .URLPath }}
-Upstream : {{ .URL }}
+const infoTplString = `Name         : {{ .Name }}
+Version       : {{ .Version }}
+Description   : {{ .Description }}
+License       : {{ .License }}
+URL           : https://aur.archlinux.org{{ .URLPath }}
+Upstream      : {{ .URL }}
+Maintainer    : {{ .Maintainer }}
+Last Modified : {{ .LastModified }}
 `
 
 var infoTpl *template.Template
@@ -36,16 +39,17 @@ func main() {
 	case searchstr != "":
 		results, er := aurjson.DoSearch(searchstr)
 		if er != nil {
-			fmt.Printf("Error: %s", er)
+			fmt.Printf("Error: %s\n", er)
 			return
 		}
 		for _, item := range results {
-			fmt.Printf("%s\n", item.Name)
+			fmt.Printf("%s %s\n", item.Name, item.Version)
+			fmt.Printf("  %s\n", item.Description)
 		}
 	case infoarg != "":
 		info, er := aurjson.GetInfo(infoarg)
 		if er != nil {
-			fmt.Printf("Error: %s", er)
+			fmt.Printf("Error: %s\n", er)
 			return
 		}
 		infoTpl.Execute(os.Stdout, *info)

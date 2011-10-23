@@ -1,40 +1,50 @@
 package aur
 
 import (
-	"os"
-	"url"
+	"bytes"
+	"fmt"
+	"io"
 	"http"
 	"json"
+	"os"
+	"time"
+	"url"
 )
 
 const AURLocation = "http://aur.archlinux.org/rpc.php"
 
-type AURInfoContainer struct {
-	Type    string   `json:"type"`
-	Results *AURInfo `json:"results"`
+type AURResponseType struct {
+	Type string `json:"type"`
 }
 
-type AURInfo struct {
+type ErrorResponse struct {
+	AURResponseType
+	Msg string `json:"results"`
+}
+
+type InfoResponse struct {
+	Type    string   `json:"type"`
+	Results *PkgInfo `json:"results"`
+}
+
+type SearchResponse struct {
+	Type    string    `json:"type"`
+	Results []PkgInfo `json:"results"`
+}
+
+type PkgInfo struct {
 	Name           string
 	Version        string
 	Description    string
+	Maintainer     *string
 	ID             int64 `json:",string"`
+	CategoryID     int64 `json:",string"`
 	License        string
 	NumVotes       int `json:",string"`
 	OutOfDate      int `json:",string"`
 	URL, URLPath   string
-	FirstSubmitted int64 `json:",string"`
-	LastModified   int64 `json:",string"`
-}
-
-type AURSearchContainer struct {
-	Type    string         `json:"type"`
-	Results []SearchResult `json:"results"`
-}
-
-type SearchResult struct {
-	Name string
-	ID   int64 `json:",string"`
+	FirstSubmitted int64     `json:",string"`
+	LastModified   *JSONTime `json:",string"`
 }
 
 func genericQuery(querytype, arg string, target interface{}) os.Error {
@@ -47,19 +57,55 @@ func genericQuery(querytype, arg string, target interface{}) os.Error {
 		return er
 	}
 
-	reader := json.NewDecoder(resp.Body)
-	reader.Decode(target)
+	buf := bytes.NewBuffer(nil)
+	_, er = io.CopyN(buf, resp.Body, 1e6)
+	if er != nil && er != os.EOF {
+		return er
+	}
+	jsonthings := buf.Bytes()
+
+	var dummy AURResponseType
+	er = json.Unmarshal(jsonthings, &dummy)
+
+	switch {
+	case dummy.Type == "error":
+		var aur_err ErrorResponse
+		er = json.Unmarshal(jsonthings, &aur_err)
+		return fmt.Errorf("Error from AUR server: %s", aur_err.Msg)
+	case er != nil:
+		return fmt.Errorf("error in JSON parser: %s", er)
+	default:
+		er = json.Unmarshal(jsonthings, target)
+		return er
+	}
+	panic("impossible")
+}
+
+func GetInfo(pkg string) (*PkgInfo, os.Error) {
+	var info InfoResponse
+	er := genericQuery("info", pkg, &info)
+	return info.Results, er
+}
+
+func DoSearch(pattern string) ([]PkgInfo, os.Error) {
+	var info SearchResponse
+	er := genericQuery("search", pattern, &info)
+	return info.Results, er
+}
+
+type JSONTime time.Time
+
+func (t *JSONTime) UnmarshalJSON(j []byte) os.Error {
+	var x int64
+	if er := json.Unmarshal(j, &x); er != nil {
+		return er
+	}
+	*t = JSONTime(*time.SecondsToLocalTime(x))
 	return nil
 }
 
-func GetInfo(pkg string) (*AURInfo, os.Error) {
-  var info AURInfoContainer
-  er := genericQuery("info", pkg, &info)
-  return info.Results, er
-}
-
-func DoSearch(pattern string) ([]SearchResult, os.Error) {
-  var info AURSearchContainer
-  er := genericQuery("search", pattern, &info)
-  return info.Results, er
+func (t *JSONTime) String() string {
+	t2 := new(time.Time)
+	*t2 = time.Time(*t)
+	return t2.Format("2006-01-02 15:04:05 MST")
 }
