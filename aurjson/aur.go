@@ -7,6 +7,7 @@ import (
 	"http"
 	"json"
 	"os"
+	"sort"
 	"time"
 	"url"
 )
@@ -31,6 +32,13 @@ type SearchResponse struct {
 	Type    string    `json:"type"`
 	Results []PkgInfo `json:"results"`
 }
+
+// Sort by name interface
+func (s SearchResponse) Len() int           { return len(s.Results) }
+func (s SearchResponse) Less(i, j int) bool { return s.Results[i].Name < s.Results[j].Name }
+func (s SearchResponse) Swap(i, j int)      { s.Results[i], s.Results[j] = s.Results[j], s.Results[i] }
+
+var _ sort.Interface = SearchResponse{}
 
 type PkgInfo struct {
 	Name           string
@@ -90,6 +98,7 @@ func GetInfo(pkg string) (*PkgInfo, os.Error) {
 func DoSearch(pattern string) ([]PkgInfo, os.Error) {
 	var info SearchResponse
 	er := genericQuery("search", pattern, &info)
+	sort.Sort(info)
 	return info.Results, er
 }
 
