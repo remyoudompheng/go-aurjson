@@ -1,4 +1,4 @@
-package aur
+package main
 
 import (
 	"bytes"
@@ -66,7 +66,7 @@ func genericQuery(querytype, arg string, target interface{}) os.Error {
 	}
 
 	buf := bytes.NewBuffer(nil)
-	_, er = io.CopyN(buf, resp.Body, 1e6)
+	_, er = io.Copyn(buf, resp.Body, 1e6)
 	if er != nil && er != os.EOF {
 		return er
 	}

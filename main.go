@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"flag"
 	"template"
-	aurjson "archlinux/aurjson"
 )
 
 const infoTplString = `Name         : {{ .Name }}
@@ -37,7 +36,7 @@ func main() {
 
 	switch {
 	case searchstr != "":
-		results, er := aurjson.DoSearch(searchstr)
+		results, er := DoSearch(searchstr)
 		if er != nil {
 			fmt.Printf("Error: %s\n", er)
 			return
@@ -47,7 +46,7 @@ func main() {
 			fmt.Printf("  %s\n", item.Description)
 		}
 	case infoarg != "":
-		info, er := aurjson.GetInfo(infoarg)
+		info, er := GetInfo(infoarg)
 		if er != nil {
 			fmt.Printf("Error: %s\n", er)
 			return
