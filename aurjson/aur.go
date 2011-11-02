@@ -50,7 +50,7 @@ type PkgInfo struct {
 	NumVotes       int `json:",string"`
 	OutOfDate      int `json:",string"`
 	URL, URLPath   string
-	FirstSubmitted int64     `json:",string"`
+	FirstSubmitted *JSONTime `json:",string"`
 	LastModified   *JSONTime `json:",string"`
 }
 

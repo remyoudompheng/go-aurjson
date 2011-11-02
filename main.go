@@ -8,7 +8,8 @@ import (
 	aurjson "archlinux/aurjson"
 )
 
-const infoTplString = `Name         : {{ .Name }}
+const infoTplString =
+`Name          : {{ .Name }}
 Version       : {{ .Version }}
 Description   : {{ .Description }}
 License       : {{ .License }}
