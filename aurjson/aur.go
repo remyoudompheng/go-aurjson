@@ -6,7 +6,6 @@ import (
 	"io"
 	"http"
 	"json"
-	"os"
 	"sort"
 	"time"
 	"url"
@@ -55,7 +54,7 @@ type PkgInfo struct {
 	LastModified   *JSONTime `json:",string"`
 }
 
-func genericQuery(querytype, arg string, target interface{}) os.Error {
+func genericQuery(querytype, arg string, target interface{}) error {
 	form := make(url.Values)
 	form.Add("type", querytype)
 	form.Add("arg", arg)
@@ -67,7 +66,7 @@ func genericQuery(querytype, arg string, target interface{}) os.Error {
 
 	buf := bytes.NewBuffer(nil)
 	_, er = io.CopyN(buf, resp.Body, 1e6)
-	if er != nil && er != os.EOF {
+	if er != nil && er != io.EOF {
 		return er
 	}
 	jsonthings := buf.Bytes()
@@ -89,13 +88,13 @@ func genericQuery(querytype, arg string, target interface{}) os.Error {
 	panic("impossible")
 }
 
-func GetInfo(pkg string) (*PkgInfo, os.Error) {
+func GetInfo(pkg string) (*PkgInfo, error) {
 	var info InfoResponse
 	er := genericQuery("info", pkg, &info)
 	return info.Results, er
 }
 
-func DoSearch(pattern string) ([]PkgInfo, os.Error) {
+func DoSearch(pattern string) ([]PkgInfo, error) {
 	var info SearchResponse
 	er := genericQuery("search", pattern, &info)
 	sort.Sort(info)
@@ -104,7 +103,7 @@ func DoSearch(pattern string) ([]PkgInfo, os.Error) {
 
 type JSONTime time.Time
 
-func (t *JSONTime) UnmarshalJSON(j []byte) os.Error {
+func (t *JSONTime) UnmarshalJSON(j []byte) error {
 	var x int64
 	if er := json.Unmarshal(j, &x); er != nil {
 		return er

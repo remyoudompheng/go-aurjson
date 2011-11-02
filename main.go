@@ -21,7 +21,7 @@ Last Modified : {{ .LastModified }}
 var infoTpl *template.Template
 
 func init() {
-	var er os.Error
+	var er error
 	infoTpl, er = template.New("info").Parse(infoTplString)
 	if er != nil {
 		fmt.Printf("couldn't compile template: %s\n", er)
