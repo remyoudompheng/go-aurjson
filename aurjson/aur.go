@@ -2,13 +2,13 @@ package aur
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
-	"http"
-	"json"
+	"net/http"
+	"net/url"
 	"sort"
 	"time"
-	"url"
 )
 
 const AURLocation = "http://aur.archlinux.org/rpc.php"

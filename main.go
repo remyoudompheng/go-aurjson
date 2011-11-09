@@ -1,15 +1,14 @@
 package main
 
 import (
-	"os"
-	"fmt"
-	"flag"
-	"template"
 	aurjson "archlinux/aurjson"
+	"flag"
+	"fmt"
+	"os"
+	"text/template"
 )
 
-const infoTplString =
-`Name          : {{ .Name }}
+const infoTplString = `Name          : {{ .Name }}
 Version       : {{ .Version }}
 Description   : {{ .Description }}
 License       : {{ .License }}
