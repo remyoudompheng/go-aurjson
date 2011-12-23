@@ -1,7 +1,7 @@
 package main
 
 import (
-	aurjson "archlinux/aurjson"
+	aurjson "github.com/remyoudompheng/go-aurjson/aurjson"
 	"flag"
 	"fmt"
 	"os"

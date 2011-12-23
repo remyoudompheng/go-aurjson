@@ -108,12 +108,11 @@ func (t *JSONTime) UnmarshalJSON(j []byte) error {
 	if er := json.Unmarshal(j, &x); er != nil {
 		return er
 	}
-	*t = JSONTime(*time.SecondsToLocalTime(x))
+	*t = JSONTime(time.Unix(x, 0))
 	return nil
 }
 
 func (t *JSONTime) String() string {
-	t2 := new(time.Time)
-	*t2 = time.Time(*t)
+	t2 := time.Time(*t)
 	return t2.Format("2006-01-02 15:04:05 MST")
 }
