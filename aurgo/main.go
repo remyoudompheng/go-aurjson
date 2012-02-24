@@ -1,7 +1,8 @@
+// aurgo is a small AUR standalone client.
 package main
 
 import (
-	aurjson "github.com/remyoudompheng/go-aurjson/aurjson"
+	aurjson "github.com/remyoudompheng/go-aurjson"
 	"flag"
 	"fmt"
 	"os"

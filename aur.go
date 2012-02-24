@@ -1,3 +1,4 @@
+// Package aur implements a client for the AUR JSON API.
 package aur
 
 import (
@@ -64,7 +65,7 @@ func genericQuery(querytype, arg string, target interface{}) error {
 		return er
 	}
 
-	buf := bytes.NewBuffer(nil)
+	buf := new(bytes.Buffer)
 	_, er = io.CopyN(buf, resp.Body, 1e6)
 	if er != nil && er != io.EOF {
 		return er
